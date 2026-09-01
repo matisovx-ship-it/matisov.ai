@@ -166,6 +166,22 @@
                 <i class="fa-solid fa-plus text-sm"></i> <span id="ui-new-chat-text">Новий діалог</span>
             </button>
 
+            <!-- Gemini API Powered Feature Buttons -->
+            <div class="grid grid-cols-3 gap-1.5 mb-3">
+                <button id="open-image-studio-btn" class="p-2 bg-slate-950 hover:bg-doc-panel border border-doc-darkBorder hover:border-cyan-400 rounded-xl text-cyan-300 flex flex-col items-center justify-center transition text-center group">
+                    <i class="fa-solid fa-wand-magic-sparkles text-sm mb-1 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[9px] font-mono leading-tight">Image Studio</span>
+                </button>
+                <button id="open-quantum-tools-btn" class="p-2 bg-slate-950 hover:bg-doc-panel border border-doc-darkBorder hover:border-cyan-400 rounded-xl text-cyan-300 flex flex-col items-center justify-center transition text-center group">
+                    <i class="fa-solid fa-sitemap text-sm mb-1 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[9px] font-mono leading-tight">AI Tools</span>
+                </button>
+                <button id="open-live-voice-btn" class="p-2 bg-slate-950 hover:bg-doc-panel border border-doc-darkBorder hover:border-cyan-400 rounded-xl text-cyan-300 flex flex-col items-center justify-center transition text-center group">
+                    <i class="fa-solid fa-[#00f0ff] fa-wave-square text-sm mb-1 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[9px] font-mono leading-tight">Live Voice</span>
+                </button>
+            </div>
+
             <div class="mb-3 p-3 bg-doc-panel/80 rounded-xl border border-doc-darkBorder">
                 <div class="flex items-center justify-between mb-1">
                     <span class="text-[11px] font-mono text-cyan-300 flex items-center gap-1.5">
@@ -193,6 +209,18 @@
                         <option value="de">🇩🇪 Deutsch</option>
                         <option value="pl">🇵🇱 Polski</option>
                         <option value="fr">🇫🇷 Français</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-mono text-cyan-400 block mb-1">
+                        <i class="fa-solid fa-microphone-lines mr-1"></i> <span id="ui-voice-label">Голос Gemini TTS:</span>
+                    </label>
+                    <select id="tts-voice-select" class="w-full bg-slate-900 border border-doc-darkBorder text-xs text-cyan-100 rounded-lg p-2 focus:outline-none focus:border-cyan-400">
+                        <option value="Zephyr">Zephyr (Bright)</option>
+                        <option value="Kore">Kore (Firm)</option>
+                        <option value="Puck">Puck (Upbeat)</option>
+                        <option value="Fenrir">Fenrir (Excitable)</option>
+                        <option value="Aoede">Aoede (Breezy)</option>
                     </select>
                 </div>
                 <div>
@@ -326,39 +354,4 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
             
-            <div class="flex items-center gap-3 mb-4">
-                <div class="hydrogen-atom"></div>
-                <div>
-                    <h2 class="text-sm font-bold text-cyan-300 font-mono">АВТОРИЗАЦІЯ</h2>
-                    <p class="text-[10px] text-gray-400">Увійдіть для синхронізації</p>
-                </div>
-            </div>
-
-            <!-- Tabs -->
-            <div class="flex border-b border-doc-darkBorder mb-4 text-xs font-mono">
-                <button id="tab-login-btn" class="flex-1 pb-2 border-b-2 border-cyan-400 text-cyan-300 font-bold">Вхід</button>
-                <button id="tab-register-btn" class="flex-1 pb-2 border-b-2 border-transparent text-gray-400">Реєстрація</button>
-            </div>
-
-            <!-- Login / Register Form -->
-            <form id="auth-form" class="space-y-3">
-                <div id="name-field-group" class="hidden">
-                    <label class="text-[10px] font-mono text-cyan-400 block mb-1">Ім'я користувача</label>
-                    <input type="text" id="auth-name-input" placeholder="Олександр" class="w-full bg-slate-950 border border-doc-darkBorder rounded-xl p-2.5 text-xs text-cyan-100 focus:outline-none focus:border-cyan-400">
-                </div>
-                <div>
-                    <label class="text-[10px] font-mono text-cyan-400 block mb-1">Email пошта</label>
-                    <input type="email" id="auth-email-input" required placeholder="user@quantum.ai" class="w-full bg-slate-950 border border-doc-darkBorder rounded-xl p-2.5 text-xs text-cyan-100 focus:outline-none focus:border-cyan-400">
-                </div>
-                <div>
-                    <label class="text-[10px] font-mono text-cyan-400 block mb-1">Пароль</label>
-                    <input type="password" id="auth-password-input" required placeholder="••••••••" class="w-full bg-slate-950 border border-doc-darkBorder rounded-xl p-2.5 text-xs text-cyan-100 focus:outline-none focus:border-cyan-400">
-                </div>
-
-                <button type="submit" id="auth-submit-btn" class="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl transition shadow-manhattan mt-2">
-                    Увійти в акаунт
-                </button>
-            </form>
-
-            <div class="relative my-4">
-                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-doc-darkBorder"></div></div
+            <div class="flex items-c
