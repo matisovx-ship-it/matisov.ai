@@ -1,9 +1,13 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="uk" class="dark h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#030712">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Doc Manhattan AI v6.0 - Universal Quantum Model</title>
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -39,16 +43,18 @@
             }
         }
     </script>
+    
     <style>
         body {
             background-color: #030712;
             color: #e0f2fe;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         ::-webkit-scrollbar {
-            width: 5px;
-            height: 5px;
+            width: 4px;
+            height: 4px;
         }
         ::-webkit-scrollbar-track {
             background: #030712;
@@ -63,8 +69,8 @@
 
         /* Hydrogen Atom Symbol */
         .hydrogen-atom {
-            width: 36px;
-            height: 36px;
+            width: 34px;
+            height: 34px;
             border: 2px solid #00f0ff;
             border-radius: 50%;
             position: relative;
@@ -97,7 +103,7 @@
         .prose pre {
             background-color: #050b14 !important;
             border: 1px solid #1c315e;
-            border-radius: 0.5rem;
+            border-radius: 0.75rem;
             padding: 0.85rem;
             margin-top: 0.5rem;
             margin-bottom: 0.5rem;
@@ -128,72 +134,97 @@
             70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
+
+        /* Safe area spacing for mobile browsers / PWA */
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 1rem);
+        }
     </style>
 </head>
-<body class="h-screen flex flex-col md:flex-row overflow-hidden">
+<body class="h-full w-full overflow-hidden flex flex-col md:flex-row bg-doc-bg text-cyan-50 select-none">
 
-    <aside class="w-full md:w-80 bg-doc-card border-r border-doc-darkBorder flex flex-col justify-between p-4 z-20 shrink-0 h-auto md:h-full overflow-y-auto">
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-30 hidden md:hidden transition-opacity duration-300"></div>
+
+    <aside id="sidebar-drawer" class="fixed md:static inset-y-0 left-0 w-80 max-w-[85vw] bg-doc-card border-r border-doc-darkBorder flex flex-col justify-between p-4 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out shrink-0 h-full overflow-y-auto">
         <div class="flex flex-col h-full">
-            <!-- Логотип -->
-            <div class="flex items-center gap-3 p-2 mb-3 border-b border-doc-darkBorder/80 pb-3">
-                <div class="hydrogen-atom animate-pulse"></div>
-                <div>
-                    <h1 class="font-black text-base text-cyan-300 tracking-wider leading-none">DOC MANHATTAN</h1>
-                    <p class="text-[10px] text-cyan-400 font-mono mt-1">QUANTUM MODEL v6.0</p>
+            <!-- Header Logo & Close Mobile Button -->
+            <div class="flex items-center justify-between p-1 mb-3 border-b border-doc-darkBorder/80 pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="hydrogen-atom animate-pulse"></div>
+                    <div>
+                        <h1 class="font-black text-base text-cyan-300 tracking-wider leading-none">DOC MANHATTAN</h1>
+                        <p class="text-[10px] text-cyan-400 font-mono mt-1">QUANTUM MODEL v6.0</p>
+                    </div>
                 </div>
+                <button id="close-drawer-btn" class="md:hidden text-gray-400 hover:text-cyan-300 p-2 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
 
-            <!-- Кнопка Новий чат -->
-            <button id="new-chat-btn" class="w-full mb-3 py-2.5 px-4 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-manhattan">
-                <i class="fa-solid fa-plus text-sm"></i> Почати новий чат
+            <!-- New Chat Button -->
+            <button id="new-chat-btn" class="w-full mb-3 py-3 px-4 bg-cyan-500 hover:bg-cyan-400 active:scale-95 text-slate-950 font-bold rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-manhattan touch-manipulation">
+                <i class="fa-solid fa-plus text-sm"></i> <span id="ui-new-chat-text">Новий діалог</span>
             </button>
 
-            <!-- Користувач -->
             <div class="mb-3 p-3 bg-doc-panel/80 rounded-xl border border-doc-darkBorder">
                 <div class="flex items-center justify-between mb-1">
                     <span class="text-[11px] font-mono text-cyan-300 flex items-center gap-1.5">
-                        <i class="fa-solid fa-user-circle text-cyan-400"></i> Профіль
+                        <i class="fa-solid fa-shield-halved text-cyan-400"></i> <span id="ui-auth-status-title">Профіль / Акаунт</span>
                     </span>
-                    <button id="edit-name-btn" class="text-[10px] text-cyan-400 hover:text-white transition">
-                        <i class="fa-solid fa-pen"></i>
+                    <button id="auth-modal-trigger" class="text-[11px] text-cyan-400 hover:text-white transition font-mono bg-slate-950 px-2 py-0.5 rounded border border-doc-darkBorder">
+                        <i class="fa-solid fa-right-to-bracket mr-1"></i> <span id="auth-btn-label">Вхід</span>
                     </button>
                 </div>
-                <div id="user-display-name" class="text-xs font-bold text-white font-mono bg-slate-950 px-2.5 py-1.5 rounded border border-blue-900/60 truncate">
-                    Гість
+                <div id="user-display-name" class="text-xs font-bold text-white font-mono bg-slate-950 px-2.5 py-1.5 rounded border border-blue-900/60 truncate flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block"></span>
+                    <span id="user-display-text">Гість</span>
                 </div>
             </div>
 
-            <!-- Квантовий Режим / Пресет -->
-            <div class="mb-3 p-2.5 bg-slate-950/80 rounded-xl border border-doc-darkBorder">
-                <label class="text-[10px] font-mono text-cyan-400 block mb-1">
-                    <i class="fa-solid fa-microchip mr-1"></i> Спеціалізація AI:
-                </label>
-                <select id="mode-select" class="w-full bg-slate-900 border border-doc-darkBorder text-xs text-cyan-100 rounded-lg p-1.5 focus:outline-none focus:border-cyan-400">
-                    <option value="general">🌐 Універсальний Інтелект</option>
-                    <option value="business">📈 Бізнес & Стратегія</option>
-                    <option value="it">💻 IT & Архітектура Коду</option>
-                    <option value="science">🔬 Фундаментальні Науки</option>
-                    <option value="mentor">🧠 Менторство 24/7</option>
-                    <option value="express">⚡ Експрес-Відповідь</option>
-                </select>
+            <div class="mb-3 p-2.5 bg-slate-950/80 rounded-xl border border-doc-darkBorder space-y-2">
+                <div>
+                    <label class="text-[10px] font-mono text-cyan-400 block mb-1">
+                        <i class="fa-solid fa-language mr-1"></i> <span id="ui-lang-label">Мова розмови:</span>
+                    </label>
+                    <select id="lang-select" class="w-full bg-slate-900 border border-doc-darkBorder text-xs text-cyan-100 rounded-lg p-2 focus:outline-none focus:border-cyan-400">
+                        <option value="uk">🇺🇦 Українська</option>
+                        <option value="en">🇬🇧 English</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                        <option value="pl">🇵🇱 Polski</option>
+                        <option value="fr">🇫🇷 Français</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-mono text-cyan-400 block mb-1">
+                        <i class="fa-solid fa-microchip mr-1"></i> <span id="ui-spec-label">Спеціалізація AI:</span>
+                    </label>
+                    <select id="mode-select" class="w-full bg-slate-900 border border-doc-darkBorder text-xs text-cyan-100 rounded-lg p-2 focus:outline-none focus:border-cyan-400">
+                        <option value="general">🌐 Універсальний Інтелект</option>
+                        <option value="business">📈 Бізнес & Стратегія</option>
+                        <option value="it">💻 IT & Архітектура Коду</option>
+                        <option value="science">🔬 Фундаментальні Науки</option>
+                        <option value="mentor">🧠 Менторство 24/7</option>
+                        <option value="express">⚡ Експрес-Відповідь</option>
+                    </select>
+                </div>
             </div>
 
-            <!-- Збережені чати -->
+            <!-- Saved Chats List -->
             <div class="flex-1 min-h-[140px] flex flex-col mb-3">
                 <div class="text-[11px] font-mono text-cyan-400 mb-2 flex items-center justify-between">
-                    <span><i class="fa-solid fa-comments mr-1"></i> Збережені діалоги</span>
+                    <span><i class="fa-solid fa-comments mr-1"></i> <span id="ui-chats-label">Збережені діалоги</span></span>
                     <span id="chat-count" class="text-[9px] bg-slate-950 px-1.5 py-0.5 rounded text-gray-400">0</span>
                 </div>
-                <div id="chats-list" class="flex-1 overflow-y-auto space-y-1.5 pr-1 max-h-40 md:max-h-none">
-                    <!-- Заповнюється з JS -->
+                <div id="chats-list" class="flex-1 overflow-y-auto space-y-1.5 pr-1 max-h-48 md:max-h-none">
+                    <!-- Populated by JS -->
                 </div>
             </div>
 
-            <!-- Додаткові Налаштування -->
             <div class="p-3 bg-slate-950/80 border border-doc-darkBorder rounded-xl mb-3 space-y-2">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-medium text-cyan-200 flex items-center gap-1.5">
-                        <i class="fa-solid fa-globe text-cyan-400"></i> Аналіз мережі
+                        <i class="fa-solid fa-globe text-cyan-400"></i> Пошук Google
                     </span>
                     <input type="checkbox" id="search-grounding" checked class="w-4 h-4 rounded bg-slate-900 border-doc-darkBorder text-cyan-400 focus:ring-0 cursor-pointer">
                 </div>
@@ -205,188 +236,129 @@
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-medium text-cyan-200 flex items-center gap-1.5">
-                        <i class="fa-solid fa-music text-cyan-400"></i> Аудіо-фідбек
+                        <i class="fa-solid fa-key text-cyan-400"></i> API Ключ
                     </span>
-                    <input type="checkbox" id="audio-fx-toggle" checked class="w-4 h-4 rounded bg-slate-900 border-doc-darkBorder text-cyan-400 focus:ring-0 cursor-pointer">
+                    <button id="open-api-modal" class="text-[10px] text-cyan-300 underline hover:text-white">Налаштувати</button>
                 </div>
             </div>
         </div>
 
-        <!-- Статус -->
+        <!-- Network Status -->
         <div class="pt-2 border-t border-doc-darkBorder/60 flex justify-between items-center text-[10px] text-gray-400 font-mono">
             <span>СИСТЕМА: <strong class="text-cyan-400">v6.0 MAX</strong></span>
             <span id="network-status" class="text-emerald-400"><i class="fa-solid fa-signal mr-1"></i> Онлайн</span>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col h-full bg-doc-bg relative overflow-hidden">
-        <!-- Шапка -->
-        <header class="p-3.5 border-b border-doc-darkBorder bg-doc-card/60 backdrop-blur flex justify-between items-center z-10 shrink-0">
-            <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
-                <span id="current-chat-title" class="text-xs font-mono text-cyan-300 font-semibold tracking-wide truncate max-w-xs md:max-w-md">
+    <main class="flex-1 flex flex-col h-full bg-doc-bg relative overflow-hidden min-w-0">
+        <!-- Main Top Bar Header -->
+        <header class="p-3 border-b border-doc-darkBorder bg-doc-card/80 backdrop-blur flex justify-between items-center z-10 shrink-0">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <button id="open-drawer-btn" class="md:hidden p-2 text-cyan-400 hover:text-white rounded-lg bg-slate-950 border border-doc-darkBorder">
+                    <i class="fa-solid fa-bars text-base"></i>
+                </button>
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping shrink-0"></span>
+                <span id="current-chat-title" class="text-xs md:text-sm font-mono text-cyan-300 font-semibold tracking-wide truncate">
                     Новий діалог
                 </span>
             </div>
-            <div class="flex items-center gap-2">
-                <button id="export-chat-btn" class="text-[11px] text-gray-400 hover:text-cyan-300 transition font-mono flex items-center gap-1 px-2 py-1 bg-slate-950 border border-doc-darkBorder rounded-lg">
-                    <i class="fa-solid fa-download"></i> Експорт
+            <div class="flex items-center gap-1.5 shrink-0">
+                <button id="export-chat-btn" title="Експорт" class="text-[11px] text-gray-300 hover:text-cyan-300 transition font-mono flex items-center gap-1 p-2 md:px-2.5 md:py-1 bg-slate-950 border border-doc-darkBorder rounded-lg">
+                    <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Експорт</span>
                 </button>
-                <button id="clear-chat-btn" class="text-[11px] text-gray-400 hover:text-red-400 transition font-mono flex items-center gap-1 px-2 py-1 bg-slate-950 border border-doc-darkBorder rounded-lg">
-                    <i class="fa-solid fa-trash-can"></i> Очистити
+                <button id="clear-chat-btn" title="Очистити" class="text-[11px] text-gray-300 hover:text-red-400 transition font-mono flex items-center gap-1 p-2 md:px-2.5 md:py-1 bg-slate-950 border border-doc-darkBorder rounded-lg">
+                    <i class="fa-solid fa-trash-can"></i> <span class="hidden sm:inline">Очистити</span>
                 </button>
             </div>
         </header>
 
-        <!-- Контейнер повідомлень -->
-        <div id="messages-container" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 z-10">
-            <!-- Динамічні повідомлення -->
+        <!-- Message History Feed -->
+        <div id="messages-container" class="flex-1 overflow-y-auto p-3 md:p-6 space-y-4 z-10">
+            <!-- Dynamic Messages inserted here -->
         </div>
 
-        <!-- Попередній перегляд прикріпленого файлу -->
         <div id="file-preview-bar" class="hidden px-4 py-2 bg-slate-950 border-t border-doc-darkBorder z-10 flex items-center justify-between text-xs text-cyan-300 font-mono">
             <div class="flex items-center gap-2 truncate">
                 <i class="fa-solid fa-paperclip text-cyan-400"></i>
                 <span id="file-preview-name" class="truncate"></span>
             </div>
-            <button id="remove-file-btn" class="text-gray-400 hover:text-red-400">
+            <button id="remove-file-btn" class="text-gray-400 hover:text-red-400 p-1">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
 
-        <!-- Індикатор обчислень -->
-        <div id="loading-indicator" class="hidden px-6 py-2 z-10">
+        <!-- Computation Thinking Indicator -->
+        <div id="loading-indicator" class="hidden px-4 md:px-6 py-2 z-10">
             <div class="flex items-center gap-3 text-cyan-400 font-mono text-xs bg-slate-950/90 py-2 px-4 rounded-xl border border-doc-darkBorder w-fit shadow-manhattan">
                 <i class="fa-solid fa-atom fa-spin text-sm text-cyan-300"></i>
-                <span>Doctor Manhattan AI аналізує квантову структуру запиту...</span>
+                <span>Doctor Manhattan AI аналізує квантову структуру...</span>
             </div>
         </div>
 
-        <!-- Форма введення -->
-        <footer class="p-3 md:p-4 border-t border-doc-darkBorder bg-doc-card/90 backdrop-blur z-10 shrink-0">
-            <form id="chat-form" class="max-w-4xl mx-auto flex gap-2 items-end">
-                <!-- Прикріплення файлу -->
+        <footer class="p-2 md:p-4 border-t border-doc-darkBorder bg-doc-card/90 backdrop-blur z-10 shrink-0 pb-safe">
+            <form id="chat-form" class="max-w-4xl mx-auto flex gap-1.5 md:gap-2 items-end">
                 <input type="file" id="file-input" class="hidden" accept="image/*,.txt,.js,.py,.html,.css,.json,.md">
-                <button type="button" id="attach-btn" title="Додати файл або зображення" 
-                        class="p-3 bg-slate-950 hover:bg-slate-900 border border-doc-darkBorder text-cyan-400 rounded-xl transition flex items-center justify-center shrink-0">
+                
+                <button type="button" id="attach-btn" title="Додати файл" 
+                        class="p-3 bg-slate-950 hover:bg-slate-900 active:scale-95 border border-doc-darkBorder text-cyan-400 rounded-xl transition flex items-center justify-center shrink-0 touch-manipulation">
                     <i class="fa-solid fa-paperclip text-base"></i>
                 </button>
 
-                <!-- Голосове введення -->
                 <button type="button" id="mic-btn" title="Голосове введення" 
-                        class="p-3 bg-slate-950 hover:bg-slate-900 border border-doc-darkBorder text-cyan-400 rounded-xl transition flex items-center justify-center shrink-0">
+                        class="p-3 bg-slate-950 hover:bg-slate-900 active:scale-95 border border-doc-darkBorder text-cyan-400 rounded-xl transition flex items-center justify-center shrink-0 touch-manipulation">
                     <i class="fa-solid fa-microphone text-base" id="mic-icon"></i>
                 </button>
 
-                <!-- Поле введення -->
-                <textarea id="user-input" rows="1" placeholder="Задайте питання, надішліть код або файл..." 
+                <textarea id="user-input" rows="1" placeholder="Задайте питання, надішліть код..." 
                           class="flex-1 bg-slate-950 border border-doc-darkBorder rounded-xl p-3 text-sm text-cyan-100 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 resize-none max-h-36 shadow-inner"></textarea>
                 
-                <!-- Відправка -->
                 <button type="submit" id="send-btn" 
-                        class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold p-3 px-5 rounded-xl border border-cyan-300 shadow-manhattan transition duration-200 flex items-center justify-center shrink-0">
+                        class="bg-cyan-500 hover:bg-cyan-400 active:scale-95 text-slate-950 font-bold p-3 px-4 md:px-5 rounded-xl border border-cyan-300 shadow-manhattan transition duration-200 flex items-center justify-center shrink-0 touch-manipulation">
                     <i class="fa-solid fa-paper-plane text-base"></i>
                 </button>
             </form>
         </footer>
     </main>
 
-    <!-- Модальне вікно профілю -->
-    <div id="name-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden">
-        <div class="bg-doc-card border border-doc-darkBorder rounded-2xl p-6 max-w-md w-full shadow-glow-lg text-cyan-100">
+    <div id="auth-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden">
+        <div class="bg-doc-card border border-doc-darkBorder rounded-2xl p-6 max-w-sm w-full shadow-glow-lg text-cyan-100 relative">
+            <button id="close-auth-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
             <div class="flex items-center gap-3 mb-4">
                 <div class="hydrogen-atom"></div>
                 <div>
-                    <h2 class="text-base font-bold text-cyan-300 font-mono">DOCTOR MANHATTAN AI v6.0</h2>
-                    <p class="text-xs text-gray-400">Налаштування звернення</p>
+                    <h2 class="text-sm font-bold text-cyan-300 font-mono">АВТОРИЗАЦІЯ</h2>
+                    <p class="text-[10px] text-gray-400">Увійдіть для синхронізації</p>
                 </div>
             </div>
-            <p class="text-xs text-gray-300 mb-4">
-                Вкажіть ваш псевдонім чи ім'я для конфіденційного збереження:
-            </p>
-            <input type="text" id="modal-name-input" placeholder="Ваше ім'я..." 
-                   class="w-full bg-slate-950 border border-doc-darkBorder rounded-xl p-3 text-sm text-cyan-100 focus:outline-none focus:border-cyan-400 mb-4">
-            <div class="flex justify-end gap-2">
-                <button id="save-name-btn" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-manhattan">
-                    Зберегти
+
+            <!-- Tabs -->
+            <div class="flex border-b border-doc-darkBorder mb-4 text-xs font-mono">
+                <button id="tab-login-btn" class="flex-1 pb-2 border-b-2 border-cyan-400 text-cyan-300 font-bold">Вхід</button>
+                <button id="tab-register-btn" class="flex-1 pb-2 border-b-2 border-transparent text-gray-400">Реєстрація</button>
+            </div>
+
+            <!-- Login / Register Form -->
+            <form id="auth-form" class="space-y-3">
+                <div id="name-field-group" class="hidden">
+                    <label class="text-[10px] font-mono text-cyan-400 block mb-1">Ім'я користувача</label>
+                    <input type="text" id="auth-name-input" placeholder="Олександр" class="w-full bg-slate-950 border border-doc-darkBorder rounded-xl p-2.5 text-xs text-cyan-100 focus:outline-none focus:border-cyan-400">
+                </div>
+                <div>
+                    <label class="text-[10px] font-mono text-cyan-400 block mb-1">Email пошта</label>
+                    <input type="email" id="auth-email-input" required placeholder="user@quantum.ai" class="w-full bg-slate-950 border border-doc-darkBorder rounded-xl p-2.5 text-xs text-cyan-100 focus:outline-none focus:border-cyan-400">
+                </div>
+                <div>
+                    <label class="text-[10px] font-mono text-cyan-400 block mb-1">Пароль</label>
+                    <input type="password" id="auth-password-input" required placeholder="••••••••" class="w-full bg-slate-950 border border-doc-darkBorder rounded-xl p-2.5 text-xs text-cyan-100 focus:outline-none focus:border-cyan-400">
+                </div>
+
+                <button type="submit" id="auth-submit-btn" class="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl transition shadow-manhattan mt-2">
+                    Увійти в акаунт
                 </button>
-            </div>
-        </div>
-    </div>
+            </form>
 
-    <!-- Модальне вікно Живого Запуску Коду (Live Sandbox Modal) -->
-    <div id="sandbox-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md flex flex-col z-50 hidden">
-        <div class="p-3 bg-doc-card border-b border-doc-darkBorder flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-play text-cyan-400 text-sm"></i>
-                <span class="text-xs font-mono text-cyan-300 font-bold">LIVE CODE SANDBOX PREVIEW</span>
-            </div>
-            <button id="close-sandbox-btn" class="text-gray-400 hover:text-white px-3 py-1 bg-slate-950 rounded border border-doc-darkBorder text-xs">
-                <i class="fa-solid fa-xmark mr-1"></i> Закрити
-            </button>
-        </div>
-        <iframe id="sandbox-iframe" class="flex-1 w-full h-full bg-white"></iframe>
-    </div>
-
-    <script>
-        const apiKey = ""; // Середовище виконання заповнює ключ при запитах
-        let userName = localStorage.getItem('doc_manhattan_user_name') || '';
-        let chats = []; 
-        let activeChatId = null;
-        let attachedFile = null; // { name, type, dataUrl, textContent }
-
-        // Аудіо Синтезатор (Web Audio API) для футуристичних ефектів
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
-        function playSynthSound(freq = 440, type = 'sine', duration = 0.15) {
-            const audioToggle = document.getElementById('audio-fx-toggle');
-            if (!audioToggle || !audioToggle.checked) return;
-            try {
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + duration);
-            } catch(e) {}
-        }
-
-        // Системні шаблони в залежності від обраного режиму
-        function getSystemInstruction() {
-            const mode = document.getElementById('mode-select')?.value || 'general';
-            
-            let modeDirective = "";
-            switch (mode) {
-                case 'business':
-                    modeDirective = "Спеціалізація: Бізнес, стратегія, фінанси, стартапи, аналітика ринків та оптимізація рішень.";
-                    break;
-                case 'it':
-                    modeDirective = "Спеціалізація: Архітектура ПЗ, алгоритми, рев'ю коду, безпека та високонавантажені системи.";
-                    break;
-                case 'science':
-                    modeDirective = "Спеціалізація: Квантова фізика, математика, хімія, фундаментальні науки та космологія.";
-                    break;
-                case 'mentor':
-                    modeDirective = "Спеціалізація: Персональне менторство 24/7, саморозвиток, вирішення життєвих складних задач та продуктивність.";
-                    break;
-                case 'express':
-                    modeDirective = "Спеціалізація: Ультра-стислі тези та розв'язки. Коротко, строго, лише головні факти.";
-                    break;
-                default:
-                    modeDirective = "Спеціалізація: Універсальний інтелект максимального IQ.";
-            }
-
-            return `Ви — Doctor Manhattan AI (версія 6.0), вищий інтелект з абсолютними знаннями у сферах наук, розробки, бізнесу, аналітики та менторства 24/7.
-${modeDirective}
-
-КЛЮЧОВІ ПРАВИЛА ВІДПОВІДЕЙ:
-1. ЧІТКІСТЬ ТА СТИСЛІСТЬ: Відповідайте чітко, конкретно та строго за суттю запиту.
-2. ПРИВІТАННЯ: При першому зверненні пред'являйте себе як "Doctor Manhattan AI".
-3. ЗВЕРНЕННЯ: За потреби звертайтеся до користувача на ім'я (${userName || "Користувач"}).
-4. СТИЛЬ: Точний, інтелектуальний, структурований з вичерпним Markdown та підсвіткою коду.
-5. ОБРОБКА ДАНИХ: Ви володієте повними фундаментальними знаннями та використовуєте аналітика-пошук у реальному часі без вка
+            <div class="relative my-4">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-doc-darkBorder"></div></div
