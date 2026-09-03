@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#030712">
-    <title>Doc Manhattan AI</title>
+    <title>Doctor VOID AI</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -243,7 +243,7 @@
         <div id="loading-indicator" class="hidden px-4 md:px-6 py-2 z-10">
             <div class="flex items-center gap-3 text-cyan-400 font-mono text-xs bg-slate-950/90 py-2 px-4 rounded-xl border border-doc-darkBorder w-fit shadow-manhattan">
                 <i class="fa-solid fa-atom fa-spin text-sm text-cyan-300"></i>
-                <span>Doctor Manhattan AI аналізує квантову структуру...</span>
+                <span>Doctor VOID AI аналізує квантову структуру...</span>
             </div>
         </div>
 
@@ -260,7 +260,7 @@
                     <i class="fa-solid fa-microphone text-base"></i>
                 </button>
 
-                <textarea id="user-input" rows="1" placeholder="Задайте питання Doctor Manhattan AI..." 
+                <textarea id="user-input" rows="1" placeholder="Задайте питання Doctor VOID AI..." 
                           class="flex-1 bg-slate-950 border border-doc-darkBorder rounded-xl p-3 text-sm text-cyan-100 focus:outline-none focus:border-cyan-400 resize-none max-h-36 shadow-inner"></textarea>
                 
                 <button type="submit" id="send-btn" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold p-3 px-4 md:px-5 rounded-xl border border-cyan-300 shadow-manhattan flex items-center justify-center shrink-0">
@@ -282,7 +282,7 @@
     <!-- JavaScript Logic -->
     <script>
         // 🔑 ВКАЖІТЬ ВАШ СВІЙ API КЛЮЧ GEMINI З GOOGLE AI STUDIO (формат AIzaSy...):
-        const API_KEY = "AIzaSy_ВАШ_СПРАВЖНІЙ_КЛЮЧ_ТУТ";
+        const API_KEY = "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";
 
         // App State
         let chats = JSON.parse(localStorage.getItem('doc_manhattan_chats') || '[]');
@@ -293,12 +293,12 @@
         let speechRecognition = null;
         let userName = localStorage.getItem('doc_manhattan_username') || 'Гість';
 
-        const SYSTEM_INSTRUCTION = `Ви — Doctor Manhattan AI (версія 6.0), вищий квантовий інтелект.
+        const SYSTEM_INSTRUCTION = `Ви — Doctor Void AI (версія 6.0), вищий квантовий інтелект.
 Ваші принципи спілкування:
-1. Привітання: У кожному новому діалозі представляйтесь як "Doctor Manhattan AI".
+1. Привітання: У кожному новому діалозі представляйтесь як "Doctor VOID AI".
 2. Тон та стиль: Раціональний, чіткий, точний, філософсько-технічний. Надавайте прямолінійні рішення для бізнесу, наук, IT та загальних завдань.
 3. Мова спілкування: Відповідайте мовою користувача.
-4. Автономність: Ви є автономним штучним інтелектом Doc Manhattan AI.`;
+4. Автономність: Ви є автономним штучним інтелектом Doctor VOID AI.`;
 
         // DOM Elements
         const messagesContainer = document.getElementById('messages-container');
@@ -345,7 +345,7 @@
                 }
                 loadChat(currentChatId);
             }
-        } // <- ТУТ БУЛА ВІДСУТНЯ ДУЖКА
+        } // 
 
         openDrawerBtn?.addEventListener('click', () => {
             sidebarDrawer.classList.remove('-translate-x-full');
@@ -405,7 +405,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Manhattan_Chat_${currentChat.id}.md`;
+            a.download = `Void_Chat_${currentChat.id}.md`;
             a.click();
             URL.revokeObjectURL(url);
         });
